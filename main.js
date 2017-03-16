@@ -55,7 +55,7 @@
                 cc.view.enableRetina(true);
             }
             //cc.view.setDesignResolutionSize(settings.designWidth, settings.designHeight, cc.ResolutionPolicy.SHOW_ALL);
-
+        
             if (cc.sys.isBrowser) {
                 setLoadingDisplay();
             }
@@ -67,12 +67,7 @@
                 else if (settings.orientation === 'portrait') {
                     cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
                 }
-                // qq, wechat, baidu
-                cc.view.enableAutoFullScreen(
-                    cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU &&
-                    cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT &&
-                    cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ
-                );
+                cc.view.enableAutoFullScreen(cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU);
             }
 
             // init assets
@@ -136,8 +131,7 @@
             frameRate: 60,
             jsList: jsList,
             groupList: settings.groupList,
-            collisionMatrix: settings.collisionMatrix,
-            renderMode: 0
+            collisionMatrix: settings.collisionMatrix
         };
 
         cc.game.run(option, onStart);
