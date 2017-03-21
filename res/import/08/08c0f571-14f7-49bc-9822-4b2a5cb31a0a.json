@@ -1,0 +1,1 @@
+[{"__type__":"cc.SpriteFrame","content":{"name":"Decline","texture":"f98c0f5d-bad6-461d-9c18-f91b968ff330","rect":[0,0,28,28],"offset":[0,0],"originalSize":[28,28]}},{"__type__":"cc.SpriteFrame","content":{"name":"Accept","texture":"d5e69e11-a254-4409-a5e6-27d2faabfded","rect":[0,0,38,30],"offset":[0,0],"originalSize":[38,30]}}]
