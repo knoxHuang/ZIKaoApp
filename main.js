@@ -161,7 +161,6 @@
         var engineLoaded = function () {
             document.body.removeChild(cocos2d);
             cocos2d.removeEventListener('load', engineLoaded, false);
-            window.eruda && eruda.init();
             boot();
         };
         cocos2d.addEventListener('load', engineLoaded, false);
