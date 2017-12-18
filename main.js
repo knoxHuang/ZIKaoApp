@@ -144,8 +144,9 @@
 
         // jsList
         var jsList = settings.jsList;
-        var bundledScript = settings.debug ? 'project.dev.js' : 'project.js';
+        var bundledScript = settings.debug ? 'src/project.dev.js' : 'src/project.js';
         if (jsList) {
+            jsList = jsList.map(function (x) { return 'src/' + x; });
             jsList.push(bundledScript);
         }
         else {
@@ -154,10 +155,9 @@
 
         // anysdk scripts
         if (cc.sys.isNative && cc.sys.isMobile) {
-            jsList = jsList.concat(['jsb_anysdk.js', 'jsb_anysdk_constants.js']);
+            jsList = jsList.concat(['src/anysdk/jsb_anysdk.js', 'src/anysdk/jsb_anysdk_constants.js']);
         }
 
-        jsList = jsList.map(function (x) { return 'src/' + x; });
 
         var option = {
             //width: width,
@@ -187,7 +187,7 @@
         var engineLoaded = function () {
             document.body.removeChild(cocos2d);
             cocos2d.removeEventListener('load', engineLoaded, false);
-            window.eruda && eruda.init();
+            window.eruda && eruda.init() && eruda.get('console').config.set('displayUnenumerable', false);
             boot();
         };
         cocos2d.addEventListener('load', engineLoaded, false);
