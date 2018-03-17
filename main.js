@@ -54,6 +54,19 @@
             canvas = document.getElementById('GameCanvas');
         }
 
+        if (cc.sys.platform === cc.sys.QQ_PLAY) {
+            if (settings.orientation === 'landscape left') {
+                BK.Director.screenMode = 2;
+            }
+            else if (settings.orientation === 'landscape right') {
+                BK.Director.screenMode = 3;
+            }
+            else if (settings.orientation === 'portrait') {
+                BK.Director.screenMode = 1;
+            }
+            initAdapter();
+        }
+
         function setLoadingDisplay () {
             // Loading splash scene
             var splash = document.getElementById('splash');
@@ -74,38 +87,38 @@
 
         var onStart = function () {
             cc.view.resizeWithBrowserSize(true);
-            // UC browser on many android devices have performance issue with retina display
-            if (cc.sys.os !== cc.sys.OS_ANDROID || cc.sys.browserType !== cc.sys.BROWSER_TYPE_UC) {
-                cc.view.enableRetina(true);
-            }
-            //cc.view.setDesignResolutionSize(settings.designWidth, settings.designHeight, cc.ResolutionPolicy.SHOW_ALL);
 
-            if (cc.sys.isBrowser) {
-                setLoadingDisplay();
-            }
-
-            if (cc.sys.isMobile) {
-                if (settings.orientation === 'landscape') {
-                    cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
+            if (!false && !false) {
+                // UC browser on many android devices have performance issue with retina display
+                if (cc.sys.os !== cc.sys.OS_ANDROID || cc.sys.browserType !== cc.sys.BROWSER_TYPE_UC) {
+                    cc.view.enableRetina(true);
                 }
-                else if (settings.orientation === 'portrait') {
-                    cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
+                if (cc.sys.isBrowser) {
+                    setLoadingDisplay();
                 }
-                // qq, wechat, baidu
-                cc.view.enableAutoFullScreen(
-                    cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU &&
-                    cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT &&
-                    cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ
-                );
-            }
 
-            // Limit downloading max concurrent task to 2,
-            // more tasks simultaneously may cause performance draw back on some android system / brwosers.
-            // You can adjust the number based on your own test result, you have to set it before any loading process to take effect.
-            if (cc.sys.isBrowser && cc.sys.os === cc.sys.OS_ANDROID) {
-                cc.macro.DOWNLOAD_MAX_CONCURRENT = 2;
+                if (cc.sys.isMobile) {
+                    if (settings.orientation === 'landscape') {
+                        cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
+                    }
+                    else if (settings.orientation === 'portrait') {
+                        cc.view.setOrientation(cc.macro.ORIENTATION_PORTRAIT);
+                    }
+                    cc.view.enableAutoFullScreen([
+                        cc.sys.BROWSER_TYPE_BAIDU,
+                        cc.sys.BROWSER_TYPE_WECHAT,
+                        cc.sys.BROWSER_TYPE_MOBILE_QQ,
+                        cc.sys.BROWSER_TYPE_MIUI,
+                    ].indexOf(cc.sys.browserType) < 0);
+                }
+                
+                // Limit downloading max concurrent task to 2,
+                // more tasks simultaneously may cause performance draw back on some android system / brwosers.
+                // You can adjust the number based on your own test result, you have to set it before any loading process to take effect.
+                if (cc.sys.isBrowser && cc.sys.os === cc.sys.OS_ANDROID) {
+                    cc.macro.DOWNLOAD_MAX_CONCURRENT = 2;
+                }
             }
-
 
             // init assets
             cc.AssetLibrary.init({
@@ -116,12 +129,13 @@
                 md5AssetsMap: settings.md5AssetsMap
             });
 
+            if (false) {
+                cc.Pipeline.Downloader.PackDownloader._doPreload("WECHAT_SUBDOMAIN", settings.WECHAT_SUBDOMAIN_DATA);
+            }
+
             var launchScene = settings.launchScene;
 
             // load scene
-            if (cc.runtime) {
-                cc.director.setRuntimeLaunchScene(launchScene);
-            }
             cc.director.loadScene(launchScene, null,
                 function () {
                     if (cc.sys.isBrowser) {
@@ -133,10 +147,6 @@
                         }
                     }
                     cc.loader.onProgress = null;
-
-                    // play game
-                    // cc.game.resume();
-
                     console.log('Success to load scene: ' + launchScene);
                 }
             );
@@ -165,15 +175,46 @@
             id: 'GameCanvas',
             scenes: settings.scenes,
             debugMode: settings.debug ? cc.DebugMode.INFO : cc.DebugMode.ERROR,
-            showFPS: settings.debug,
+            showFPS: (!false && !false) && settings.debug,
             frameRate: 60,
             jsList: jsList,
             groupList: settings.groupList,
             collisionMatrix: settings.collisionMatrix,
             renderMode: 0
-        };
+        }
 
         cc.game.run(option, onStart);
+    }
+
+    if (false) {
+        (function () {
+            var require = function (url) {
+                BK.Script.loadlib('GameRes://' + url);
+            };
+            require('libs/qqplay-adapter.js');
+            require('src/settings.js');
+            require(window._CCSettings.debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js');
+            require('libs/qqplay-downloader.js');
+            var prevPipe = cc.loader.md5Pipe || cc.loader.assetLoader;
+            cc.loader.insertPipeAfter(prevPipe, qqPlayDownloader);
+            boot();
+        })();
+        return;
+    }
+
+    if (false) {
+        require(window._CCSettings.debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js');
+        var prevPipe = cc.loader.md5Pipe || cc.loader.assetLoader;
+        cc.loader.insertPipeAfter(prevPipe, wxDownloader);
+        boot();
+        return;
+    }
+
+    if (window.jsb) {
+        require('src/settings.js');
+        require('src/jsb_polyfill.js');
+        boot();
+        return;
     }
 
     if (window.document) {
@@ -192,12 +233,6 @@
         };
         cocos2d.addEventListener('load', engineLoaded, false);
         document.body.appendChild(cocos2d);
-    }
-    else if (window.jsb) {
-        require('src/settings.js');
-        require('src/jsb_polyfill.js');
-
-        boot();
     }
 
 })();
